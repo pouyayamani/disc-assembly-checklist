@@ -216,7 +216,7 @@
 
 <script>
 const steps = [
-  { section: "Arms Mechanical Inspection" },
+  { section: "Arms Inspection" },
   { label: "Mechanical check the arms — carriage not wobbly, arm has no play in the clevis" },
   { label: "Torque marks present" },
   { label: "AEB grease packing mark present" },
@@ -224,20 +224,21 @@ const steps = [
 
   { section: "Clevis & Disc" },
   { label: "Dowel pins present" },
-  { label: "O-ring of the disc present" },
-  { label: "Put the arms into discs and torque the clevises" },
+  { label: "Put the arms into discs and torque the clevises", note: "Verify R/F position on the disc matches the arm" },
   { label: "After torquing, verify disc is not deformed", note: "Use another disc as reference — it should sit loosely" },
 
-  { section: "Connectors & Flex" },
-  { label: "Check flexes have adhesive spacer installed on the back of the connectors" },
+  { section: "Pre-Seal Check" },
   { label: "Install data port plugs" },
-  { label: "Install flex holddowns for front and rear" },
-  { label: "Hand tighten AEB connector screws — check AEB connector is loose", note: "Risk of stripping" },
   { label: "Secure flexes with tape before helium check" },
-  { spacer: true },
+  { label: "O-ring of the disc present" },
   { label: "Helium check" },
 
+  { section: "Flex & Connectors" },
+  { label: "Install flex holddowns for front and rear" },
+  { label: "Hand tighten AEB connector screws — check AEB connector is loose", note: "Risk of stripping" },
+
   { section: "UT Installation" },
+  { label: "Check flexes have adhesive spacer installed on the back of the connectors" },
   { reminder: "Repeat A–E for the other side" },
   { label: "A — Check PBT front or rear screw" },
   { label: "B — Blast air at connectors" },
@@ -245,7 +246,7 @@ const steps = [
   { label: "D — Replace alignment pins with shoulder screws" },
   { label: "E — Write UT sandwich number + F/R on arm body" },
   { spacer: true },
-  { label: "Insert alignment pin on disc (marked 22)" },
+  { label: "Insert alignment pin on disc (engraved 22)" },
 ];
 
 const list = document.getElementById('list');
