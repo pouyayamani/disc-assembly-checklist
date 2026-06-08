@@ -118,6 +118,16 @@
     margin: 1.75rem 0 0.5rem;
   }
 
+  .section-label.buddy {
+    color: var(--text);
+    font-size: 11px;
+    border: 1px solid var(--text);
+    padding: 6px 10px;
+    border-radius: 4px;
+    display: inline-block;
+    margin: 1.75rem 0 0.75rem;
+  }
+
   .spacer { margin-top: 1rem; }
 
   .item {
@@ -173,11 +183,79 @@
 
   .item.done .note { color: #c0bfba; }
 
-  .reminder {
-    font-size: 12px;
+  /* Dual checkbox rows */
+  .dual-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 14px;
+    margin-bottom: 4px;
+  }
+  .dual-header-spacer { flex: 1; }
+  .dual-col-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     color: var(--muted);
-    font-style: italic;
-    margin: 6px 0 8px 4px;
+    width: 52px;
+    text-align: center;
+  }
+
+  .dual-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    margin-bottom: 5px;
+  }
+
+  .dual-label {
+    flex: 1;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text);
+  }
+
+  .dual-check-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    width: 52px;
+  }
+
+  .dual-check {
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
+    border: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+  }
+
+  .dual-check:hover { border-color: #bbb9b2; }
+  .dual-check.done { background: var(--success); border-color: var(--success); }
+  .dual-check svg { opacity: 0; transition: opacity 0.1s; }
+  .dual-check.done svg { opacity: 1; }
+
+  .final-note {
+    margin-top: 1.75rem;
+    padding: 12px 16px;
+    border: 1.5px solid var(--text);
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    color: var(--text);
   }
 
   .complete-banner {
@@ -215,19 +293,24 @@
 </div>
 
 <script>
+const checkSVG = `<svg width="11" height="9" viewBox="0 0 11 9" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 4L4 7.5L10 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
 const steps = [
   { section: "Arms Inspection" },
   { label: "Mechanical check the arms — carriage not wobbly, arm has no play in the clevis" },
   { label: "Torque marks present" },
   { label: "AEB grease packing mark present" },
   { label: "Diaphragm not ballooned" },
+  { label: "Lens visual inspection — check for delamination and unusual marks" },
 
   { section: "Clevis & Disc" },
   { label: "Dowel pins present" },
-  { label: "Put the arms into discs and torque the clevises", note: "Verify R/F position on the disc matches the arm" },
+  { label: "Verify R/F position on the disc matches the arm" },
+  { label: "Put the arms into discs and torque the clevises", note: "Tighten screws evenly, not one at a time" },
   { label: "After torquing, verify disc is not deformed", note: "Use another disc as reference — it should sit loosely" },
 
   { section: "Pre-Seal Check" },
+  { label: "Clean the sealing surface — should be scratch free" },
   { label: "Install data port plugs" },
   { label: "Secure flexes with tape before helium check" },
   { label: "O-ring of the disc present" },
@@ -235,18 +318,22 @@ const steps = [
 
   { section: "Flex & Connectors" },
   { label: "Install flex holddowns for front and rear" },
+  { label: "Clean leftover Loctite if present" },
   { label: "Hand tighten AEB connector screws — check AEB connector is loose", note: "Risk of stripping" },
+
+  { buddy: "Buddy Check" },
 
   { section: "UT Installation" },
   { label: "Check flexes have adhesive spacer installed on the back of the connectors" },
-  { reminder: "Repeat A–E for the other side" },
-  { label: "A — Check PBT front or rear screw" },
-  { label: "B — Blast air at connectors" },
-  { label: "C — Place UT sandwich into disc and secure with shoulder screws" },
-  { label: "D — Replace alignment pins with shoulder screws" },
-  { label: "E — Write UT sandwich number + F/R on arm body" },
+  { dual: true, label: "A — Check PBT front or rear screw" },
+  { dual: true, label: "B — Blast air at connectors" },
+  { dual: true, label: "C — Place UT sandwich into disc and secure with shoulder screws" },
+  { dual: true, label: "D — Replace alignment pins with shoulder screws" },
+  { dual: true, label: "E — Write UT sandwich number + F/R on arm body" },
   { spacer: true },
   { label: "Insert alignment pin on disc (engraved 22)" },
+  { buddy: "Buddy Check" },
+  { final: "Continue on Final Electronics Verification" },
 ];
 
 const list = document.getElementById('list');
@@ -256,13 +343,21 @@ const badge = document.getElementById('badge');
 const banner = document.getElementById('banner');
 const items = [];
 
-const checkSVG = `<svg width="11" height="9" viewBox="0 0 11 9" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 4L4 7.5L10 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+let dualHeaderAdded = false;
 
 steps.forEach(s => {
   if (s.section) {
+    dualHeaderAdded = false;
     const d = document.createElement('div');
     d.className = 'section-label';
     d.textContent = s.section;
+    list.appendChild(d);
+    return;
+  }
+  if (s.buddy) {
+    const d = document.createElement('div');
+    d.className = 'section-label buddy';
+    d.textContent = '⊕ ' + s.buddy;
     list.appendChild(d);
     return;
   }
@@ -272,13 +367,42 @@ steps.forEach(s => {
     list.appendChild(d);
     return;
   }
-  if (s.reminder) {
+  if (s.final) {
     const d = document.createElement('div');
-    d.className = 'reminder';
-    d.textContent = '↻ ' + s.reminder;
+    d.className = 'final-note';
+    d.textContent = s.final;
     list.appendChild(d);
     return;
   }
+  if (s.dual) {
+    if (!dualHeaderAdded) {
+      const hdr = document.createElement('div');
+      hdr.className = 'dual-header';
+      hdr.innerHTML = `<div class="dual-header-spacer"></div><div class="dual-col-label">Front</div><div class="dual-col-label">Rear</div>`;
+      list.appendChild(hdr);
+      dualHeaderAdded = true;
+    }
+    const div = document.createElement('div');
+    div.className = 'dual-item';
+    const frontId = 'f_' + Math.random().toString(36).slice(2);
+    const rearId = 'r_' + Math.random().toString(36).slice(2);
+    div.innerHTML = `
+      <div class="dual-label">${s.label}</div>
+      <div class="dual-check-wrap">
+        <div class="dual-check" id="${frontId}">${checkSVG}</div>
+      </div>
+      <div class="dual-check-wrap">
+        <div class="dual-check" id="${rearId}">${checkSVG}</div>
+      </div>`;
+    list.appendChild(div);
+    const front = div.querySelector('#' + frontId);
+    const rear = div.querySelector('#' + rearId);
+    front.addEventListener('click', () => { front.classList.toggle('done'); update(); });
+    rear.addEventListener('click', () => { rear.classList.toggle('done'); update(); });
+    items.push(front, rear);
+    return;
+  }
+
   const div = document.createElement('div');
   div.className = 'item';
   div.innerHTML = `<div class="check">${checkSVG}</div><div class="text"><div class="label">${s.label}</div>${s.note ? `<div class="note">${s.note}</div>` : ''}</div>`;
